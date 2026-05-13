@@ -20,18 +20,18 @@ jobs:
       - run:
           name: Login to ECR Public
           command: |
-            aws ecr-public get-login-password --region us-east-1 \
+            aws ecr-public get-login-password --region us-west-2 \
             | docker login --username AWS --password-stdin public.ecr.aws/m5k9b3f3
 
       - run:
           name: Build & Push Docker Image
           command: |
-            docker build -t shoppingcart:latest .
+            docker build -t shopping-cart:latest .
 
-            docker tag shoppingcart:latest \
-            public.ecr.aws/m5k9b3f3/shoppingcart:latest
+            docker tag shopping-cart:latest \
+            public.ecr.aws/m5k9b3f3/shopping-cart:latest
 
-            docker push public.ecr.aws/m5k9b3f3/shoppingcart:latest
+            docker push public.ecr.aws/m5k9b3f3/shopping-cart:latest
 
 
   terraform-infra:
@@ -79,7 +79,7 @@ jobs:
             ssh -o StrictHostKeyChecking=no ec2-user@$EC2_PUBLIC_IP "
               set -e
 
-              aws ecr-public get-login-password --region us-east-1 \
+              aws ecr-public get-login-password --region us-west-2 \
               | docker login --username AWS --password-stdin public.ecr.aws/m5k9b3f3
 
               cd /home/ec2-user/app
