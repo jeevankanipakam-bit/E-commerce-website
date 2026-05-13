@@ -8,7 +8,7 @@ subnet_name = "public-subnet"
 igw_name = "my-igw"
 route_table_name = "public-route-table"
 
-ami = "ami-098e39bafa7e7303d"
+ami = "ami-0603dd3984985653f"
 instance_type = "t2.micro"
 
 key_name = "terraform-key-pair"
