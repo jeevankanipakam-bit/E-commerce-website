@@ -11,5 +11,5 @@ route_table_name = "public-route-table"
 ami = "ami-098e39bafa7e7303d"
 instance_type = "t2.micro"
 
-key_name = "terraform-key"
+key_name = "terraform-key-pair"
 public_key_path = "~/.ssh/id_rsa.pub"
