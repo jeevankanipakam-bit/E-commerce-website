@@ -1,4 +1,4 @@
-region = "eu-west-2"
+region = "us-west-1"
 
 vpc_cidr = "10.0.0.0/16"
 subnet_cidr = "10.0.1.0/24"
@@ -8,8 +8,8 @@ subnet_name = "public-subnet"
 igw_name = "my-igw"
 route_table_name = "public-route-table"
 
-ami = "ami-011c04cb040289c2a"
-instance_type = "t4g.small"
+ami = "ami-0ae71df19dfccf547"
+instance_type = "t3.micro"
 
-key_name = "terraform-key"
+key_name = "terraform-key-prefix"
 public_key_path = "~/.ssh/id_rsa.pub"
