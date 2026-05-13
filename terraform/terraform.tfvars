@@ -9,7 +9,7 @@ igw_name = "my-igw"
 route_table_name = "public-route-table"
 
 ami = "ami-011c04cb040289c2a"
-instance_type = "t2.micro"
+instance_type = "t4g.small"
 
-key_name = "terraform-key-prefix"
+key_name = "terraform-key"
 public_key_path = "~/.ssh/id_rsa.pub"

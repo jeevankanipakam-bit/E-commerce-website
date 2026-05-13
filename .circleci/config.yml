@@ -20,13 +20,16 @@ jobs:
       - run:
           name: Login to ECR
           command: |
-            aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 320042238069.dkr.ecr.ap-south-1.amazonaws.com
+            aws ecr get-login-password --region ap-south-1 \
+            | docker login --username AWS --password-stdin 320042238069.dkr.ecr.ap-south-1.amazonaws.com
+
       - run:
           name: Build & Push Image
           command: |
-            docker build -t shoopingcart .
+            docker build -t shoopingcart:latest .
 
-            docker tag shoopingcart:latest 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest
+            docker tag shoopingcart:latest \
+            320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest
 
             docker push 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest
 
@@ -39,13 +42,17 @@ jobs:
       - checkout
 
       - run:
-          name: Terraform Apply (safe)
+          name: Conditional Infra Deploy
           command: |
             cd terraform
             terraform init -input=false
 
-            # SAFE APPROACH: always apply but no re-create issues
-            terraform apply -auto-approve
+            if terraform state list | grep -q "aws_instance"; then
+              echo "Infra already exists → skipping creation"
+            else
+              echo "No infra found → creating infra"
+              terraform apply -auto-approve
+            fi
 
 
   deploy:
@@ -64,18 +71,21 @@ jobs:
             sudo ./aws/install
 
       - run:
-          name: Deploy via SSH (FIXED)
+          name: Deploy via SSH
           command: |
             ssh -o StrictHostKeyChecking=no ec2-user@$EC2_PUBLIC_IP "
               set -e
 
-              aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 320042238069.dkr.ecr.ap-south-1.amazonaws.com
+              aws ecr get-login-password --region ap-south-1 \
+              | docker login --username AWS --password-stdin 320042238069.dkr.ecr.ap-south-1.amazonaws.com
+
               cd /home/ec2-user/app
 
               docker compose pull
               docker compose down || true
               docker compose up -d --remove-orphans
             "
+
 
 workflows:
   build-infra-deploy:
