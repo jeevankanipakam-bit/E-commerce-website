@@ -18,16 +18,18 @@ jobs:
             sudo ./aws/install
 
       - run:
-          name: Login to ECR
+          name: Login to ECR Public
           command: |
-            aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/m5k9b3f3
+            aws ecr-public get-login-password --region us-east-1 \
+            | docker login --username AWS --password-stdin public.ecr.aws/m5k9b3f3
 
       - run:
-          name: Build & Push Image
+          name: Build & Push Docker Image
           command: |
-            docker build -t shoppingcart .
+            docker build -t shoppingcart:latest .
 
-            docker tag shoppingcart:latest public.ecr.aws/m5k9b3f3/shoppingcart:latest
+            docker tag shoppingcart:latest \
+            public.ecr.aws/m5k9b3f3/shoppingcart:latest
 
             docker push public.ecr.aws/m5k9b3f3/shoppingcart:latest
 
@@ -40,17 +42,15 @@ jobs:
       - checkout
 
       - run:
-          name: Conditional Infra Deploy
+          name: Terraform Init + Apply (NO DUPLICATES SAFE)
           command: |
             cd terraform
+
             terraform init -input=false
 
-            if terraform state list | grep -q "aws_instance"; then
-              echo "Infra already exists → skipping creation"
-            else
-              echo "No infra found → creating infra"
-              terraform apply -auto-approve
-            fi
+            terraform plan -input=false
+
+            terraform apply -auto-approve -input=false
 
 
   deploy:
@@ -59,7 +59,7 @@ jobs:
 
     steps:
       - run:
-          name: Install tools
+          name: Install tools (SSH + AWS CLI)
           command: |
             sudo apt update
             sudo apt install -y openssh-client curl unzip
@@ -69,12 +69,18 @@ jobs:
             sudo ./aws/install
 
       - run:
-          name: Deploy via SSH
+          name: Deploy to EC2 using Docker Compose
           command: |
+            if [ -z "$EC2_PUBLIC_IP" ]; then
+              echo "ERROR: EC2_PUBLIC_IP is not set"
+              exit 1
+            fi
+
             ssh -o StrictHostKeyChecking=no ec2-user@$EC2_PUBLIC_IP "
               set -e
 
-              aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/m5k9b3f3
+              aws ecr-public get-login-password --region us-east-1 \
+              | docker login --username AWS --password-stdin public.ecr.aws/m5k9b3f3
 
               cd /home/ec2-user/app
 
