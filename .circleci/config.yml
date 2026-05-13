@@ -26,12 +26,12 @@ jobs:
       - run:
           name: Build & Push Image
           command: |
-            docker build -t shoppingcart-app:latest ./app
+            docker build -t shoopingcart-app:latest ./app
 
-            docker tag shoppingcart-app:latest \
-            320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoppingcart-app:latest
+            docker tag shoopingcart-app:latest \
+            320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart-app:latest
 
-            docker push 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoppingcart-app:latest
+            docker push 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart-app:latest
 
 
   terraform-infra:
