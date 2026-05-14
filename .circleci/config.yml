@@ -7,7 +7,6 @@ jobs:
 
     steps:
       - checkout
-
       - setup_remote_docker
 
       - run:
@@ -58,18 +57,13 @@ jobs:
       - run:
           name: Deploy to EC2
           command: |
-            ssh ec2-user@54.151.78.123 << 'EOF'
-            cd E-Commerce-Website
-
-            docker compose down
-
-            docker pull 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest
-
-            docker tag 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest shopping-cart
-
-            docker compose up -d
-            EOF
-
+            ssh -o StrictHostKeyChecking=no ec2-user@54.151.78.123 "
+              cd E-Commerce-Website &&
+              docker compose down &&
+              docker pull 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest &&
+              docker tag 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest shopping-cart &&
+              docker compose up -d
+            "
 
 workflows:
   version: 2
