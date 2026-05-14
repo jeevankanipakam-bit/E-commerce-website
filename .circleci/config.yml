@@ -46,7 +46,7 @@ jobs:
       - run:
           name: SSH into EC2 and Deploy
           command: |
-            ssh -o StrictHostKeyChecking=no ec2-user@54.151.78.123 << 'EOF'
+            ssh -o StrictHostKeyChecking=no ec2-user@54.151.78.123 "cd E-commerce-website && \
 
             cd E-commerce-website
 
