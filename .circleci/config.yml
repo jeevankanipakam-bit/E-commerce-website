@@ -44,23 +44,16 @@ jobs:
 
     steps:
       - run:
-          name: SSH into EC2 and Deploy
+          name: Deploy to EC2
           command: |
-            ssh -o StrictHostKeyChecking=yes ec2-user@54.151.78.123 "cd E-commerce-website && \
-
-            cd E-commerce-website
-
-            docker compose down
-
-            docker pull 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest
-
-            docker tag 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest shopping-cart
-
-            docker compose up -d
-
+            ssh -o StrictHostKeyChecking=yes ec2-user@54.151.78.123 '
+            cd E-commerce-website &&
+            docker compose down &&
+            docker pull 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest &&
+            docker tag 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest shopping-cart &&
+            docker compose up -d &&
             docker exec e-commerce-website-app-1 dotnet ef database update
-
-            EOF
+            '
 
 workflows:
   version: 2
