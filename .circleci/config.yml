@@ -19,13 +19,12 @@ jobs:
       - run:
           name: Login to AWS ECR
           command: |
-            aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 320042238069.dkr.ecr.ap-south-1.a
+            aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 320042238069.dkr.ecr.ap-south-1.amazonaws.com
 
       - run:
           name: Build Docker Image
           command: |
             docker build -t shoopingcart .
-
       - run:
           name: Tag Image
           command: |
@@ -49,7 +48,7 @@ jobs:
             cd $PROJECT_DIR &&
             docker compose down &&
             docker pull 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest
-            docker tag 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest shopping-cart &&
+            docker tag 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest  shopping-cart
             docker compose up -d
             '
 
