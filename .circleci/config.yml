@@ -19,16 +19,18 @@ jobs:
       - run:
           name: Login to AWS ECR
           command: |
-            aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 320042238069.dkr.ecr.ap-south-1.amazonaws.com
+            aws ecr get-login-password --region ap-south-1 \
+            | docker login --username AWS --password-stdin 320042238069.dkr.ecr.ap-south-1.amazonaws.com
 
       - run:
           name: Build Docker Image
           command: |
-            docker build -t shoopingcart .
+            docker build -t shoppingcart .
+
       - run:
           name: Tag Image
           command: |
-            docker tag shoopingcart:latest 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest
+            docker tag shoppingcart:latest 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest
 
       - run:
           name: Push Image
@@ -41,16 +43,33 @@ jobs:
       - image: cimg/base:stable
 
     steps:
+      - checkout
+
+      - add_ssh_keys:
+          fingerprints:
+            - "SHA256:9El3qWuXc2c0NPN1agMk40eoVuVoG1csvNZlEnoYW6s"
+
+      - run:
+          name: Add EC2 to known hosts
+          command: |
+            mkdir -p ~/.ssh
+            ssh-keyscan 54.151.78.123 >> ~/.ssh/known_hosts
+
       - run:
           name: Deploy to EC2
           command: |
-            ssh -o StrictHostKeyChecking=no ec2-user@54.151.78.123 '
-            cd $PROJECT_DIR &&
-            docker compose down &&
+            ssh ec2-user@54.151.78.123 << 'EOF'
+            cd E-Commerce-Website
+
+            docker compose down
+
             docker pull 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest
-            docker tag 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest  shopping-cart
+
+            docker tag 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest shopping-cart
+
             docker compose up -d
-            '
+            EOF
+
 
 workflows:
   version: 2
