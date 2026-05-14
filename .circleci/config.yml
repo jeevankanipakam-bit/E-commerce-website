@@ -1,56 +1,41 @@
 version: 2.1
 
 jobs:
-
   build-and-push:
     docker:
       - image: cimg/node:18.0
 
     steps:
       - checkout
+
       - setup_remote_docker
+
+      - run:
+          name: Build Docker Image
+          command: |
+            docker build -t shoppingcart .
 
       - run:
           name: Install AWS CLI
           command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscliv2.zip
-            unzip awscliv2.zip
-            sudo ./aws/install
+            sudo apt update
+            sudo apt install -y awscli
 
       - run:
-          name: Login to ECR Public
+          name: Login to AWS ECR
           command: |
-            aws ecr-public get-login-password --region us-west-2 \
-            | docker login --username AWS --password-stdin public.ecr.aws/m5k9b3f3
+            aws ecr get-login-password --region ap-south-1 \
+            | docker login --username AWS --password-stdin 320042238069.dkr.ecr.ap-south-1.amazonaws.com
 
       - run:
-          name: Build & Push Docker Image
+          name: Tag Image
           command: |
-            docker build -t shopping-cart:latest .
-
-            docker tag shopping-cart:latest \
-            public.ecr.aws/m5k9b3f3/shopping-cart:latest
-
-            docker push public.ecr.aws/m5k9b3f3/shopping-cart:latest
-
-
-  terraform-infra:
-    docker:
-      - image: hashicorp/terraform:1.6
-
-    steps:
-      - checkout
+            docker tag shoppingcart:latest 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest
 
       - run:
-          name: Terraform Init + Apply (NO DUPLICATES SAFE)
+          name: Push Image
           command: |
-            cd terraform
-
-            terraform init -input=false
-
-            terraform plan -input=false
-
-            terraform apply -auto-approve -input=false
+            docker push 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest
 
 
   deploy:
@@ -59,44 +44,29 @@ jobs:
 
     steps:
       - run:
-          name: Install tools (SSH + AWS CLI)
+          name: SSH into EC2 and Deploy
           command: |
-            sudo apt update
-            sudo apt install -y openssh-client curl unzip
+            ssh -o StrictHostKeyChecking=no ec2-user@54.151.78.123 << 'EOF'
 
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscliv2.zip
-            unzip awscliv2.zip
-            sudo ./aws/install
+            cd E-commerce-website
 
-      - run:
-          name: Deploy to EC2 using Docker Compose
-          command: |
-            if [ -z "$EC2_PUBLIC_IP" ]; then
-              echo "ERROR: EC2_PUBLIC_IP is not set"
-              exit 1
-            fi
+            docker compose down
 
-            ssh -o StrictHostKeyChecking=no ec2-user@$EC2_PUBLIC_IP "
-              set -e
+            docker pull 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest
 
-              aws ecr-public get-login-password --region us-west-2 \
-              | docker login --username AWS --password-stdin public.ecr.aws/m5k9b3f3
+            docker tag 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest shopping-cart
 
-              cd /home/ec2-user/app
+            docker compose up -d
 
-              docker compose pull
-              docker compose down || true
-              docker compose up -d --remove-orphans
-            "
+            docker exec e-commerce-website-app-1 dotnet ef database update
 
+            EOF
 
 workflows:
-  build-infra-deploy:
+  version: 2
+  build-deploy:
     jobs:
       - build-and-push
-      - terraform-infra:
-          requires:
-            - build-and-push
       - deploy:
           requires:
-            - terraform-infra
+            - build-and-push
