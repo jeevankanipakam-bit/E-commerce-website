@@ -29,12 +29,12 @@ jobs:
       - run:
           name: Tag Image
           command: |
-            docker tag shoppingcart:latest 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoppingcart:latest
+            docker tag shoppingcart:latest 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest
 
       - run:
           name: Push Image
           command: |
-            docker push 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoppingcart:latest
+            docker push 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest
 
 
   deploy:
@@ -52,16 +52,16 @@ jobs:
           name: Add EC2 to known hosts
           command: |
             mkdir -p ~/.ssh
-            ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
+            ssh-keyscan $EC2_HOST >> ~/.ssh/known_hosts
 
       - run:
           name: Deploy to EC2
           command: |
-            ssh -o StrictHostKeyChecking=no ec2-user@$EC2_HOST "
+            ssh -o StrictHostKeyChecking=no ec2-user@EC2_HOST "
               cd /home/ec2-user/E-commerce-website &&
               docker compose down &&
-              docker pull 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoppingcart:latest &&
-              docker tag 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoppingcart:latest shopping-cart &&
+              docker pull 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest &&
+              docker tag 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest shopping-cart &&
               docker compose up -d
             "
 
