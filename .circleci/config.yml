@@ -57,7 +57,7 @@ jobs:
       - run:
           name: Deploy to EC2
           command: |
-            ssh -o StrictHostKeyChecking=no ec2-user@54.215.213.124 "
+            ssh -o StrictHostKeyChecking=no ec2-user@$EC2_HOST "
               cd /home/ec2-user/E-commerce-website &&
               docker compose down &&
               docker pull 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest &&
