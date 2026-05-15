@@ -52,12 +52,12 @@ jobs:
           name: Add EC2 to known hosts
           command: |
             mkdir -p ~/.ssh
-            ssh-keyscan 54.151.78.123 >> ~/.ssh/known_hosts
+            ssh-keyscan $EC2_HOST >> ~/.ssh/known_hosts
 
       - run:
           name: Deploy to EC2
           command: |
-            ssh -o StrictHostKeyChecking=no ec2-user@54.151.78.123 "
+            ssh -o StrictHostKeyChecking=no ec2-user@$EC2_HOST "
               cd /home/ec2-user/E-commerce-website &&
               docker compose down &&
               docker pull 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest &&
