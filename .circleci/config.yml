@@ -18,7 +18,8 @@ jobs:
       - run:
           name: Login to AWS ECR
           command: |
-            aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 320042238069.dkr.ecr.ap-south-1.amazonaws.com
+            aws ecr get-login-password --region ap-south-1 \
+            | docker login --username AWS --password-stdin 320042238069.dkr.ecr.ap-south-1.amazonaws.com
 
       - run:
           name: Build Docker Image
@@ -45,7 +46,7 @@ jobs:
 
       - add_ssh_keys:
           fingerprints:
-            - "SHA256:9El3qWuXc2c0NPN1agMk40eoVuVoG1csvNZlEnoYW6s"
+            - ${SSH_KEY_FINGERPRINT}
 
       - run:
           name: Add EC2 to known hosts
@@ -57,7 +58,6 @@ jobs:
           name: Deploy to EC2
           command: |
             ssh -o StrictHostKeyChecking=no ec2-user@54.151.78.123 "
-              aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 320042238069.dkr.ecr.ap-south-1.amazonaws.com
               cd /home/ec2-user/E-commerce-website &&
               docker compose down &&
               docker pull 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest &&
