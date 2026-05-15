@@ -347,6 +347,6 @@ namespace API.Data
             return new[] { RoleType.StoreModerator.ToString(), RoleType.TrackModerator.ToString(), RoleType.Admin.ToString() }.Contains(role);
         }
 
-        #endregions
+        #endregion
     }
 }
