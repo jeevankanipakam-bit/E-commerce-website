@@ -33,7 +33,6 @@ jobs:
           command: |
             docker push 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest
 
-
   deploy:
     docker:
       - image: cimg/base:stable
