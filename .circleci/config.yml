@@ -18,7 +18,7 @@ jobs:
       - run:
           name: Login to AWS ECR
           command: |
-            aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 320042238069.dkr.ecr.ap-south-1.amazonaws.com
+            aws ecr-public get-login-password --ap-south-1 | docker login --username AWS --password-stdin public.ecr.aws/m5k9b3f3
       - run:
           name: Build Docker Image
           command: |
@@ -27,11 +27,11 @@ jobs:
       - run:
           name: Tag Image
           command: |
-            docker tag shoopingcart:latest 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest
+            docker tag shoppingcart:latest public.ecr.aws/m5k9b3f3/shoppingcart:latest
       - run:
           name: Push Image
           command: |
-            docker push 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shoopingcart:latest
+            docker push public.ecr.aws/m5k9b3f3/shoppingcart:latest
 
   deploy:
     docker:
