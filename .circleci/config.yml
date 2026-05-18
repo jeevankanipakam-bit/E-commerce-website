@@ -16,24 +16,22 @@ jobs:
             sudo apt install -y awscli
 
       - run:
-          name: Login to ECR Public
+          name: Login to AWS ECR
           command: |
-            aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
-
+            aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 320042238069.dkr.ecr.ap-south-1.amazonaws.com
       - run:
           name: Build Docker Image
           command: |
-            docker build -t shoppingcart .
+            docker build -t shopping-cart .
 
       - run:
           name: Tag Image
           command: |
-            docker tag shoppingcart:latest public.ecr.aws/m5k9b3f3/shoppingcart:latest
-
+            docker tag shopping-cart:latest 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shopping-cart:latest
       - run:
           name: Push Image
           command: |
-            docker push public.ecr.aws/m5k9b3f3/shoppingcart:latest
+            docker push 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shopping-cart:latest
 
   deploy:
     docker:
@@ -56,9 +54,10 @@ jobs:
           name: Deploy to EC2
           command: |
             ssh -o StrictHostKeyChecking=no ec2-user@$EC2_HOST "
-              docker pull public.ecr.aws/m5k9b3f3/shoppingcart:latest &&
               cd /home/ec2-user/E-commerce-website &&
               docker compose down &&
+              docker pull 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shopping-cart:latest &&
+              docker tag 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shopping-cart:latest shopping-cart &&
               docker compose up -d
             "
 
