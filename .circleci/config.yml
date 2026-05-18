@@ -19,6 +19,7 @@ jobs:
           name: Login to AWS ECR
           command: |
             aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 320042238069.dkr.ecr.ap-south-1.amazonaws.com
+
       - run:
           name: Build Docker Image
           command: |
@@ -28,6 +29,7 @@ jobs:
           name: Tag Image
           command: |
             docker tag shopping-cart:latest 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shopping-cart:latest
+
       - run:
           name: Push Image
           command: |
@@ -54,6 +56,7 @@ jobs:
           name: Deploy to EC2
           command: |
             ssh -o StrictHostKeyChecking=no ec2-user@$EC2_HOST "
+              aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 320042238069.dkr.ecr.ap-south-1.amazonaws.com &&
               cd /home/ec2-user/E-commerce-website &&
               docker compose down &&
               docker pull 320042238069.dkr.ecr.ap-south-1.amazonaws.com/shopping-cart:latest &&
